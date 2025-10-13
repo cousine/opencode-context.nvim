@@ -75,6 +75,7 @@ local function setup_prompt_keymaps(bufnr, send_callback, type)
 		end
 
 		if type == "input" then
+			vim.cmd("stopinsert")
 			M.hide_prompt()
 		end
 	end, opts)
