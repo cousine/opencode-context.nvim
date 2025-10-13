@@ -276,19 +276,12 @@ function M.send_prompt()
 	local default_text = ""
 	if mode == "v" or mode == "V" or mode == "\22" then -- \22 is visual block mode
 		default_text = "@selection "
+	else
+		default_text = "@cursor "
 	end
 
-	vim.ui.input({
-		prompt = "Enter prompt for opencode (use @file, @buffers, @cursor, @selection, @diagnostics): ",
-		default = default_text,
-	}, function(input)
-		if not input or input == "" then
-			return
-		end
-
-		local processed_prompt = replace_placeholders(input)
-		send_to_opencode(processed_prompt)
-	end)
+	M.show_input_prompt()
+	M.add_text_to_prompt(default_text)
 end
 
 function M.toggle_mode()
@@ -323,15 +316,23 @@ local function create_send_callback()
 end
 
 function M.show_persistent_prompt()
-	ui.show_persistent_prompt(create_send_callback())
+	ui.show_prompt(create_send_callback(), "persistent")
 end
 
 function M.hide_persistent_prompt()
-	ui.hide_persistent_prompt()
+	ui.hide_prompt()
 end
 
 function M.toggle_persistent_prompt()
-	ui.toggle_persistent_prompt(create_send_callback())
+	ui.toggle_prompt(create_send_callback(), "persistent")
+end
+
+function M.show_input_prompt()
+	ui.show_prompt(create_send_callback(), "input")
+end
+
+function M.add_text_to_prompt(text)
+	return ui.add_text_at_cursor(text)
 end
 
 function M.setup(opts)
