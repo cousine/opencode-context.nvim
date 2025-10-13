@@ -37,8 +37,8 @@ end
 -- returns the buffer, relative file path and cursor
 local function get_cursor()
 	local function is_floating(winid)
-		local config = vim.api.nvim_win_get_config(winid)
-		return config.relative ~= ""
+		local win_cfg = vim.api.nvim_win_get_config(winid)
+		return win_cfg.relative ~= ""
 	end
 
 	local current_win = vim.api.nvim_get_current_win()
