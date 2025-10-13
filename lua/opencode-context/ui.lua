@@ -1,8 +1,33 @@
+local config = require("opencode-context.config")
+
 local M = {}
 
 -- UI state
 local prompt_win = nil
 local prompt_buf = nil
+
+local safe_size = function(size, min, max)
+	local safe_size = size
+
+	-- If less or equal to zero, return min allowed
+	-- size.
+	if safe_size <= 0 then
+		return min
+	end
+
+	-- If size is between 0 and 1, assume is a percentage of
+	-- max allowed size.
+	if safe_size < 1 then
+		safe_size = math.floor(max * safe_size)
+	end
+
+	return safe_size
+end
+
+local function safe_height(height)
+	local max_height = math.floor(0.9 * vim.o.lines)
+	return safe_size(height, 1, max_height)
+end
 
 local function create_prompt_buffer()
 	if prompt_buf and vim.api.nvim_buf_is_valid(prompt_buf) then
@@ -65,7 +90,7 @@ function M.show_persistent_prompt(send_callback)
 
 	-- Get editor dimensions
 	local width = vim.o.columns
-	local height = 1 -- Increased to accommodate 2-line title
+	local height = safe_height(config.win.persistent.height) -- Increased to accommodate 2-line title
 	local row = vim.o.lines - height - 3 -- Position above statusline/powerline
 
 	-- Create floating window

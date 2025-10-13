@@ -2,6 +2,13 @@ local default_config = {
   -- Tmux settings
   tmux_target = nil, -- Manual override: "session:window.pane"
   auto_detect_pane = true, -- Auto-detect opencode pane in current window
+
+  -- Prompt window configuration
+  win = {
+    persistent = {
+      height = 2,
+    },
+  },
 }
 
 local M = vim.deepcopy(default_config)
