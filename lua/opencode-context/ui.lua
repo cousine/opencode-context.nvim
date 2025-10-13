@@ -102,7 +102,7 @@ function M.show_persistent_prompt(send_callback)
 		col = 2,
 		style = "minimal",
 		border = "solid",
-		title = " OpenCode - use @file, @buffers, @cursor, @selection, @diagnostics, @here",
+		title = config.win.icon .. " OpenCode - use @file, @buffers, @cursor, @selection, @diagnostics, @here",
 		title_pos = "left",
 	})
 

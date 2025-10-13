@@ -5,6 +5,7 @@ local default_config = {
 
   -- Prompt window configuration
   win = {
+    icon = " ",
     persistent = {
       height = 2,
     },
