@@ -1,11 +1,6 @@
 local M = {}
 local ui = require("opencode-context.ui")
-
-M.config = {
-	-- Tmux settings
-	tmux_target = nil, -- Manual override: "session:window.pane"
-	auto_detect_pane = true, -- Auto-detect opencode pane in current window
-}
+local config = require("opencode-context.config")
 
 local function get_current_file_path()
 	local bufnr = vim.api.nvim_get_current_buf()
@@ -186,11 +181,11 @@ end
 
 local function find_opencode_pane()
 	-- If manual target is set, use it
-	if M.config.tmux_target then
-		return M.config.tmux_target
+	if config.tmux_target then
+		return config.tmux_target
 	end
 
-	if not M.config.auto_detect_pane then
+	if not config.auto_detect_pane then
 		return nil
 	end
 
@@ -340,7 +335,7 @@ function M.toggle_persistent_prompt()
 end
 
 function M.setup(opts)
-	M.config = vim.tbl_deep_extend("force", M.config, opts or {})
+	require("opencode-context.config").update(opts)
 end
 
 return M
