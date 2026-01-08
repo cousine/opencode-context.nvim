@@ -1,11 +1,6 @@
 local M = {}
 local ui = require("opencode-context.ui")
-
-M.config = {
-	-- Tmux settings
-	tmux_target = nil, -- Manual override: "session:window.pane"
-	auto_detect_pane = true, -- Auto-detect opencode pane in current window
-}
+local config = require("opencode-context.config")
 
 local function get_current_file_path()
 	local bufnr = vim.api.nvim_get_current_buf()
@@ -42,8 +37,8 @@ end
 -- returns the buffer, relative file path and cursor
 local function get_cursor()
 	local function is_floating(winid)
-		local config = vim.api.nvim_win_get_config(winid)
-		return config.relative ~= ""
+		local win_cfg = vim.api.nvim_win_get_config(winid)
+		return win_cfg.relative ~= ""
 	end
 
 	local current_win = vim.api.nvim_get_current_win()
@@ -186,11 +181,11 @@ end
 
 local function find_opencode_pane()
 	-- If manual target is set, use it
-	if M.config.tmux_target then
-		return M.config.tmux_target
+	if config.tmux_target then
+		return config.tmux_target
 	end
 
-	if not M.config.auto_detect_pane then
+	if not config.auto_detect_pane then
 		return nil
 	end
 
@@ -282,19 +277,12 @@ function M.send_prompt()
 	local default_text = ""
 	if mode == "v" or mode == "V" or mode == "\22" then -- \22 is visual block mode
 		default_text = "@selection "
+	else
+		default_text = "@cursor "
 	end
 
-	vim.ui.input({
-		prompt = "Enter prompt for opencode (use @file, @buffers, @cursor, @selection, @diagnostics): ",
-		default = default_text,
-	}, function(input)
-		if not input or input == "" then
-			return
-		end
-
-		local processed_prompt = replace_placeholders(input)
-		send_to_opencode(processed_prompt)
-	end)
+	M.show_input_prompt()
+	M.add_text_to_prompt(default_text)
 end
 
 function M.toggle_mode()
@@ -329,19 +317,27 @@ local function create_send_callback()
 end
 
 function M.show_persistent_prompt()
-	ui.show_persistent_prompt(create_send_callback())
+	ui.show_prompt(create_send_callback(), "persistent")
 end
 
 function M.hide_persistent_prompt()
-	ui.hide_persistent_prompt()
+	ui.hide_prompt()
 end
 
 function M.toggle_persistent_prompt()
-	ui.toggle_persistent_prompt(create_send_callback())
+	ui.toggle_prompt(create_send_callback(), "persistent")
+end
+
+function M.show_input_prompt()
+	ui.show_prompt(create_send_callback(), "input")
+end
+
+function M.add_text_to_prompt(text)
+	return ui.add_text_at_cursor(text)
 end
 
 function M.setup(opts)
-	M.config = vim.tbl_deep_extend("force", M.config, opts or {})
+	require("opencode-context.config").update(opts)
 end
 
 return M
